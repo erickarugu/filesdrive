@@ -7,6 +7,7 @@ const nextConfig = {
     apiUrl: process.env.API_URL,
   },
   experimental: {},
+  output: "standalone",
 };
 
 export default nextConfig;
