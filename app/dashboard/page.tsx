@@ -1,5 +1,5 @@
-import { UploadsHead } from "@/components/uploads-head";
-import { UploadsTable } from "@/components/uploads-table";
+import { UploadsHead } from "@/components/uploads/uploads-head";
+import { UploadsTable } from "@/components/uploads/uploads-table";
 
 export default function Dashboard() {
   return (

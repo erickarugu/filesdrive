@@ -1,0 +1,41 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["metrics", "tracing", "postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [uuidOssp(map: "uuid-ossp")]
+}
+
+model User {
+  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid()
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  email  String  @unique
+  name   String?
+  avatar String?
+
+  @@index([email])
+  @@map("users")
+}
+
+model Upload {
+  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid()
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  fileName String @map("file_name")
+  key      String @map("key")
+  size     Int    @map("size")
+  type     String @map("type")
+
+  @@index([fileName])
+  @@index([key])
+  @@map("uploads")
+}

@@ -1,4 +1,4 @@
-import { getUploads, getUploadSignedUrl } from "@/queries";
+import { getUploads } from "@/queries";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -9,9 +9,7 @@ export async function POST(request: NextRequest) {
 
     const filename = formData.get("filename") as string;
 
-    const signedUrl = await getUploadSignedUrl(filename);
-
-    return NextResponse.json({ signedUrl });
+    return NextResponse.json({});
   } catch (error) {
     console.error({ error });
     return NextResponse.json(
@@ -23,7 +21,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const uploads = await getUploads();
+    const uploads = await getUploads({});
 
     return NextResponse.json(uploads);
   } catch (error) {

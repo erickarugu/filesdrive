@@ -1,6 +1,6 @@
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Icons } from "./icons";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Icons } from "../icons";
 import FileUpload from "./file-upload";
 import { File } from "lucide-react";
 

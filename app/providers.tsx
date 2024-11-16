@@ -1,6 +1,7 @@
 "use client";
 import { ThemeProvider } from "next-themes";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { SessionProvider } from "next-auth/react";
 
 const client = new QueryClient({
   defaultOptions: {
@@ -23,7 +24,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       }}
       disableTransitionOnChange
     >
-      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+      <SessionProvider>
+        <QueryClientProvider client={client}>{children}</QueryClientProvider>
+      </SessionProvider>
     </ThemeProvider>
   );
 }

@@ -9,8 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useApi } from "./hooks/queries";
-import { Badge } from "./ui/badge";
+import { useApi } from "../hooks/queries";
+import { Badge } from "../ui/badge";
 import { Eye, Pencil, Trash } from "lucide-react";
 
 export function UploadsTable() {
@@ -35,8 +35,6 @@ export function UploadsTable() {
   if (error) return <p>An error occurred.</p>;
 
   if (!uploads || !uploads.length) return <p>No uploads found</p>;
-
-  console.log({ uploads });
 
   return (
     <Table>

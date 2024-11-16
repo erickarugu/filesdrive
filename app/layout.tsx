@@ -4,6 +4,7 @@ import "@/styles/globals.css";
 import { cn } from "@/lib/utils";
 import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/toaster";
+import { MainNavClient } from "@/components/mainNav";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -25,7 +26,10 @@ export default function RootLayout({
           inter.variable
         )}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <MainNavClient />
+          {children}
+        </Providers>
         <Toaster />
       </body>
     </html>

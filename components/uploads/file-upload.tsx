@@ -1,10 +1,10 @@
 "use client";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
-import { toast } from "./ui/use-toast";
+import { toast } from "../ui/use-toast";
 import { ToastAction } from "@radix-ui/react-toast";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import axios, { AxiosProgressEvent } from "axios";
 import { useTheme } from "next-themes";
 import { CloudUpload } from "lucide-react";
