@@ -25,6 +25,7 @@ const BreadcrumbList = React.forwardRef<
     {...props}
   />
 ));
+BreadcrumbList.displayName = "BreadcrumbList";
 
 export function MainNavBreadcrumb() {
   const pathname = usePathname();
