@@ -1,18 +1,32 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+import React from "react";
+import { cn } from "@/lib/utils";
 
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
-  BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-export function BreadcrumbWithCustomSeparator() {
+const BreadcrumbList = React.forwardRef<
+  HTMLOListElement,
+  React.ComponentPropsWithoutRef<"ol">
+>(({ className, ...props }, ref) => (
+  <ol
+    ref={ref}
+    className={cn(
+      "flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-2.5 max-w-[500px] overflow-hidden",
+      className
+    )}
+    {...props}
+  />
+));
+
+export function MainNavBreadcrumb() {
   const pathname = usePathname();
   const paths = pathname?.split("/").filter(Boolean) ?? [];
 
@@ -20,8 +34,8 @@ export function BreadcrumbWithCustomSeparator() {
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink>
-            <Link href="/dashboard">Dashboard</Link>
+          <BreadcrumbLink href="/dashboard">
+            <span>Dashboard</span>
           </BreadcrumbLink>
         </BreadcrumbItem>
 
@@ -39,10 +53,8 @@ export function BreadcrumbWithCustomSeparator() {
                     {path.charAt(0).toUpperCase() + path.slice(1)}
                   </BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink>
-                    <Link href={href}>
-                      {path.charAt(0).toUpperCase() + path.slice(1)}
-                    </Link>
+                  <BreadcrumbLink href={href}>
+                    <span>{path.charAt(0).toUpperCase() + path.slice(1)}</span>
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>

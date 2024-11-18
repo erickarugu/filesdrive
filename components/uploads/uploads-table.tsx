@@ -9,23 +9,47 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useApi } from "../hooks/queries";
-import { Badge } from "../ui/badge";
+import { useApi } from "@/components/hooks/queries";
+import { Badge } from "@/components/ui/badge";
 import { Eye, Pencil, Trash } from "lucide-react";
+import { formatBytes, getFileIcon } from "@/lib/utils";
+import parse from "html-react-parser"; // Add this import at the top
+import { getCurrentUser, getUserUploads } from "@/app/dashboard/actions";
+import { Upload } from "@/queries";
 
-export function UploadsTable() {
-  const { get, useQuery } = useApi();
+interface UploadsTableProps {
+  searchText: string;
+}
+
+export function UploadsTable({ searchText }: UploadsTableProps) {
+  const { useQuery } = useApi();
 
   const {
     data: uploads,
-    isLoading,
+    isPending,
     error,
-  } = useQuery<any[]>({
-    queryKey: ["uploads"],
-    queryFn: () => get("/uploads"),
+  } = useQuery({
+    queryKey: ["userUploads"],
+    queryFn: async (): Promise<Upload[]> =>
+      await getUserUploads({
+        where: {
+          userId: (await getCurrentUser())?.id,
+          ...(searchText.length
+            ? {
+                OR: [
+                  { key: { contains: `%${searchText}%`, mode: "insensitive" } },
+                  {
+                    name: { contains: `%${searchText}%`, mode: "insensitive" },
+                  },
+                ],
+              }
+            : {}),
+        },
+        orderBy: { createdAt: "desc" },
+      }),
   });
 
-  if (isLoading)
+  if (isPending)
     return (
       <div className="flex items-center justify-center min-h-96">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500" />
@@ -44,8 +68,7 @@ export function UploadsTable() {
           <TableHead>Name</TableHead>
           <TableHead>Size</TableHead>
           <TableHead>Type</TableHead>
-          <TableHead>URL</TableHead>
-          <TableHead>Cusonm Id</TableHead>
+          <TableHead>Key</TableHead>
           <TableHead>Uploaded</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Actions</TableHead>
@@ -59,10 +82,14 @@ export function UploadsTable() {
         {uploads?.map((file, idx) => (
           <TableRow key={file.id}>
             <TableCell>{idx + 1}</TableCell>
-            <TableCell className="font-medium">{file.filename}</TableCell>
-            <TableCell>{(Math.random() * 10).toFixed(2) + "MB"}</TableCell>
-            <TableCell>Image/JPEG</TableCell>
-            <TableCell>{file.url}</TableCell>
+            <TableCell className="font-medium flex items-center gap-2 max-w-70 overflow-hidden text-ellipsis text-nowrap">
+              {parse(getFileIcon(file.type.split("/")[1]))}
+              {file.name}
+            </TableCell>
+            <TableCell>{formatBytes(file.size)}</TableCell>
+            <TableCell className="text-ellipsis text-nowrap max-w-40 overflow-hidden">
+              {file.type}
+            </TableCell>
             <TableCell>{file.id}</TableCell>
             <TableCell>{new Date(file.createdAt).toLocaleString()}</TableCell>
             <TableCell>

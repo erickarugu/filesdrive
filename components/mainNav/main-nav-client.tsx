@@ -1,10 +1,9 @@
-"use client";
-
-import { useSession } from "next-auth/react";
 import { MainNav } from "./main-nav";
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
 
-export function MainNavClient() {
-  const { data: session, status } = useSession();
+export async function MainNavClient() {
+  const session = await getServerSession(authOptions);
 
   const user = session?.user
     ? {
@@ -14,5 +13,5 @@ export function MainNavClient() {
       }
     : null;
 
-  return <MainNav user={user} status={status} />;
+  return <MainNav user={user} />;
 }

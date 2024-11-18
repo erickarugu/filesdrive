@@ -16,9 +16,11 @@ model User {
   updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  email  String  @unique
-  name   String?
-  avatar String?
+  email   String   @unique
+  name    String?
+  avatar  String?
+  uploads Upload[]
+  teams   Team[]
 
   @@index([email])
   @@map("users")
@@ -30,12 +32,32 @@ model Upload {
   updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  fileName String @map("file_name")
-  key      String @map("key")
-  size     Int    @map("size")
-  type     String @map("type")
+  name         String
+  key          String
+  size         Int
+  type         String
+  lastModified DateTime @map("last_modified")
+  userId       String   @map("user_id") @db.Uuid()
 
-  @@index([fileName])
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([name])
   @@index([key])
+  @@index([userId])
   @@map("uploads")
+}
+
+model Team {
+  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid()
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  name    String
+  ownerId String @map("owner_id") @db.Uuid()
+
+  owner User @relation(fields: [ownerId], references: [id])
+
+  @@index([name])
+  @@map("teams")
 }

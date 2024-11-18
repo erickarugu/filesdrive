@@ -6,20 +6,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
 import { useApi } from "@/components/hooks";
 import { User } from "@/queries";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { getCurrentUser } from "../actions";
 
 export default function ProfilePage() {
-  const { get, put, useQuery } = useApi();
+  const { put, useQuery } = useApi();
   const queryClient = useQueryClient();
 
   const {
     data: user,
     isLoading,
     error,
-  } = useQuery<User>({
+  } = useQuery({
     queryKey: ["user"],
-    queryFn: () => get("/users"),
+    queryFn: async (): Promise<User | null> => await getCurrentUser(),
   });
+
   // Update user mutation
   const { mutate: updateUser } = useMutation<User, Error, Partial<User>>({
     mutationFn: (user: Partial<User>) => put("/users", user),

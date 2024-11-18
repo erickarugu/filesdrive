@@ -1,27 +1,17 @@
 "use client";
 import { ThemeProvider } from "next-themes";
-import { QueryClient, QueryClientProvider } from "react-query";
 import { SessionProvider } from "next-auth/react";
 
-const client = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: false,
-    },
-  },
-});
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const client = new QueryClient();
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider
       attribute="class"
       defaultTheme="system"
-      enableSystem={true}
-      value={{
-        dark: "dark",
-        light: "light",
-      }}
+      enableSystem
       disableTransitionOnChange
     >
       <SessionProvider>

@@ -15,7 +15,14 @@ export type GetUploadOptions = {
 };
 
 export type CreateUploadOptions = {
-  input: Prisma.UploadCreateInput;
+  input: {
+    userId: string;
+    key: string;
+    name: string;
+    size: number;
+    type: string;
+    lastModified: Date;
+  };
   select?: Prisma.UploadSelect;
 };
 
@@ -29,6 +36,18 @@ export type DeleteUploadOptions = {
   where: Prisma.UploadWhereUniqueInput;
 };
 
+export type Upload = Prisma.UploadGetPayload<{
+  select: {
+    id: true;
+    key: true;
+    name: true;
+    size: true;
+    type: true;
+    lastModified: true;
+    createdAt: true;
+  };
+}>;
+
 async function getUpload(options: GetUploadOptions) {
   const { where, select } = options;
 
@@ -40,7 +59,7 @@ async function getUpload(options: GetUploadOptions) {
   }
 }
 
-async function getUploads(options: GetUploadsOptions) {
+async function getUploads(options: GetUploadsOptions): Promise<Upload[]> {
   try {
     const uploads = await prisma.upload.findMany(options);
     return uploads;
@@ -52,9 +71,18 @@ async function getUploads(options: GetUploadsOptions) {
 async function createUpload(options: CreateUploadOptions) {
   const { input, select } = options;
 
+  const { userId, ...restInput } = input;
+
   try {
     const upload = await prisma.upload.create({
-      data: input,
+      data: {
+        ...restInput,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
       select: select,
     });
 

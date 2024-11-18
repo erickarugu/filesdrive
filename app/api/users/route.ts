@@ -13,8 +13,6 @@ export async function GET() {
       };
     };
 
-    console.log(session);
-
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -41,8 +39,6 @@ export async function PUT(request: Request) {
         image: string;
       };
     };
-
-    console.log(session);
 
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
