@@ -12,7 +12,6 @@ export function GoogleSignInButton() {
       setIsLoading(true);
       await signIn("google");
     } catch (error) {
-      console.error(error);
     } finally {
       setIsLoading(false);
     }

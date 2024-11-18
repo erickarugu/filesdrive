@@ -79,7 +79,6 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(signedUrl);
   } catch (error) {
-    console.error({ error });
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }
