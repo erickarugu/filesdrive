@@ -596,7 +596,7 @@ export default function Home() {
               </p>
               <div className="flex gap-4">
                 <a
-                  href="https://github.com/yourusername/yourrepo"
+                  href="https://github.com/erickarugu/filesdrive"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary transition-colors"
