@@ -1,8 +1,7 @@
 import { authOptions } from "@/lib/auth";
 import { GCPUpload } from "@/lib/gcp";
 import { prisma } from "@/lib/prisma";
-import { createUpload, getUploads } from "@/queries";
-import { NextApiRequest } from "next";
+import { getUploads } from "@/queries";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -20,26 +19,6 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(uploads);
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Something went wrong" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function POST(request: NextApiRequest) {
-  try {
-    const requestBody = await request.body;
-
-    const upload = await createUpload({
-      input: {
-        ...requestBody,
-        lastModified: new Date(requestBody.lastModified),
-      },
-    });
-
-    return NextResponse.json({ upload });
   } catch (error) {
     return NextResponse.json(
       { error: "Something went wrong" },
