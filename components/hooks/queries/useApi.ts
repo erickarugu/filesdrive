@@ -1,5 +1,5 @@
 import { useApi as nextUseAPi } from "next-basics";
-import * as reactQuery from "react-query";
+import * as reactQuery from "@tanstack/react-query";
 
 export function useApi() {
   const { get, post, put, del } = nextUseAPi({}, process.env.basePath);

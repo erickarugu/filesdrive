@@ -1,15 +1,4 @@
-import { MainNav } from "@/components/main-nav";
-
-async function getRandomPerson(): Promise<{
-  name: {
-    first: string;
-    last: string;
-  };
-}> {
-  const res = await fetch("https://randomuser.me/api");
-  const data = await res.json();
-  return data.results[0];
-}
+import { MainNavClient } from "@/components/mainNav";
 
 export const metadata = {
   title: `Dashboard`,
@@ -21,10 +10,5 @@ export default function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <>
-      <MainNav />
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }

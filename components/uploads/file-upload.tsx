@@ -1,32 +1,28 @@
 "use client";
+
 import { useState } from "react";
-import { useMutation, useQueryClient } from "react-query";
-import { toast } from "./ui/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "../ui/use-toast";
 import { ToastAction } from "@radix-ui/react-toast";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import axios, { AxiosProgressEvent } from "axios";
 import { useTheme } from "next-themes";
 import { CloudUpload } from "lucide-react";
+import {
+  createNewUpload,
+  getCurrentUser,
+  getGCPSignedUrl,
+} from "@/app/dashboard/actions";
+import { formatBytes, getTimeDifference } from "@/lib/utils";
 
 export default function FileUpload() {
   const [file, setFile] = useState<File>();
   const [progress, setProgress] = useState(0);
   const [startTime, setStartTime] = useState<number>();
   const [progressEvent, setProgressEvent] = useState<AxiosProgressEvent>();
-
+  const queryClient = useQueryClient();
   const { theme } = useTheme();
-
-  const fetchSignedUrl = async (data: FormData) => {
-    const response = await fetch(`/api/uploads`, {
-      method: "POST",
-      body: data,
-    });
-    if (!response.ok) {
-      throw new Error("Failed to fetch signed URL");
-    }
-    return response.json();
-  };
 
   const uploadFile = async ({
     signedUrl,
@@ -34,6 +30,7 @@ export default function FileUpload() {
   }: {
     signedUrl: string;
     file: File;
+    fileKey: string;
   }) => {
     return axios.put(signedUrl, file, {
       headers: {
@@ -50,50 +47,48 @@ export default function FileUpload() {
     });
   };
 
-  const { mutate: generateSignedUrl, isLoading: isGeneratingSignedUrl } =
-    useMutation(fetchSignedUrl, {
-      onSuccess: (data: { signedUrl: string }) => {
-        const { signedUrl: url } = data;
+  const uploadFileMutation = useMutation({
+    mutationFn: uploadFile,
+    onSuccess: async (_, { fileKey }) => {
+      const currentUser = await getCurrentUser();
 
-        console.log({ data, file });
-
-        if (!url) return;
-
-        if (!file) return;
-
-        uploadFileMutation.mutate({ signedUrl: url, file });
-      },
-
-      onError: (error) => {
-        toast({
-          variant: "destructive",
-          title: "Something went wrong!",
-          description: "An error occurred while generating the signed URL",
+      if (file && fileKey && currentUser?.id) {
+        await createNewUpload({
+          input: {
+            key: fileKey,
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            lastModified: new Date(file.lastModified),
+            userId: currentUser.id,
+          },
         });
-        setStartTime(undefined);
-      },
-    });
+      }
 
-  const uploadFileMutation = useMutation(uploadFile, {
-    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["userUploads"] });
+
       if (!startTime) return;
+
       toast({
         title: "File uploaded successfully!",
-        description: `The file upload took ${
-          (new Date().getTime() - startTime) / 1000
-        } s to complete`,
+        description: `The file upload took ${getTimeDifference(
+          new Date(startTime),
+          new Date()
+        )} to complete`,
         action: <ToastAction altText="Close toast">Close</ToastAction>,
       });
 
       setProgress(0);
       setStartTime(undefined);
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         variant: "destructive",
         title: "Something went wrong!",
         description: "An error occurred while uploading the file",
       });
+      setProgress(0);
+      setStartTime(undefined);
     },
   });
 
@@ -115,11 +110,22 @@ export default function FileUpload() {
 
     setStartTime(Date.now());
 
-    const formData = new FormData();
-    formData.append("file", tempFile);
-    formData.append("filename", tempFile.name);
+    const signedUrlResponse = await getGCPSignedUrl();
 
-    generateSignedUrl(formData);
+    if (!signedUrlResponse) {
+      toast({
+        variant: "destructive",
+        title: "Something went wrong!",
+        description: "An error occurred while getting GCP signed url",
+      });
+      return;
+    }
+
+    uploadFileMutation.mutate({
+      signedUrl: signedUrlResponse.url,
+      file: tempFile,
+      fileKey: signedUrlResponse.key,
+    });
   };
 
   return (
@@ -131,7 +137,7 @@ export default function FileUpload() {
             type="file"
             className="hidden"
             onChange={handleUpload}
-            disabled={isGeneratingSignedUrl || uploadFileMutation.isLoading}
+            disabled={uploadFileMutation.isPending}
           />
           <Label
             htmlFor="picture"
@@ -152,14 +158,14 @@ export default function FileUpload() {
               }}
             ></div>
 
-            {!(isGeneratingSignedUrl || uploadFileMutation.isLoading) && (
+            {!uploadFileMutation.isPending && !startTime && (
               <>
                 <CloudUpload />
                 <span>Upload</span>
               </>
             )}
 
-            {(isGeneratingSignedUrl || uploadFileMutation.isLoading) && (
+            {uploadFileMutation.isPending && startTime && (
               <>
                 <span className="text-sm text-muted">
                   Uploading... ({progress.toFixed(2) + "%"})
@@ -173,13 +179,13 @@ export default function FileUpload() {
         <div className="flex flex-row gap-5 justify-end text-muted-foreground text-sm">
           <p>File: {file?.name}</p>
           <p>
-            Time taken: {((new Date().getTime() - startTime) / 1000).toFixed(2)}{" "}
-            s{" "}
+            Time taken: {getTimeDifference(new Date(startTime), new Date())}
           </p>
           {progressEvent?.loaded && progressEvent?.total && (
             <p>
-              File size: {(progressEvent?.loaded / (1024 * 1024)).toFixed(2)} MB
-              / {(progressEvent.total / (1024 * 1024)).toFixed(2)} MB
+              File size:
+              {formatBytes(progressEvent?.loaded)} /{" "}
+              {formatBytes(progressEvent?.total)}
             </p>
           )}
         </div>

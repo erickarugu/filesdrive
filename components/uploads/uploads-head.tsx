@@ -1,10 +1,17 @@
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Icons } from "./icons";
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Icons } from "@/components/icons";
 import FileUpload from "./file-upload";
 import { File } from "lucide-react";
 
-export function UploadsHead() {
+interface UploadsHeadProps {
+  setSearchText: (text: string) => void;
+  searchText: string;
+}
+
+export function UploadsHead({ setSearchText, searchText }: UploadsHeadProps) {
   return (
     <div className="flex flex-row gap-4 mb-3 justify-between items-end">
       <div className="flex-col items-center gap-2 flex-1">
@@ -20,6 +27,8 @@ export function UploadsHead() {
             type="text"
             placeholder="Search files"
             className="w-full focus:outline-none"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
           />
           <Button
             variant="outline"
