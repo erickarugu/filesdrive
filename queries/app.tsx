@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma, Upload } from "@prisma/client";
 
 export type GetAppsOptions = {
   where?: Prisma.AppWhereInput;
@@ -99,9 +99,9 @@ async function deleteApp(options: DeleteAppOptions): Promise<App> {
 
 async function getApps(options: GetAppsOptions): Promise<App[]> {
   try {
-    const apps = await prisma.app.findMany({
+    const apps = (await prisma.app.findMany({
       ...options,
-    });
+    })) as unknown as (App & { uploads: Upload[] })[];
 
     return apps.map((app) => ({
       ...app,
