@@ -30,6 +30,9 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const gcpUpload = new GCPUpload();
 
+  const body = await request.json();
+  const key = body.key;
+
   const session = (await getServerSession(authOptions)) as {
     user: {
       name: string;
@@ -54,7 +57,7 @@ export async function PUT(request: NextRequest) {
   }
 
   try {
-    const signedUrl = await gcpUpload.getSignedUrl(user);
+    const signedUrl = await gcpUpload.getSignedUrl(user, key);
 
     return NextResponse.json(signedUrl);
   } catch (error) {

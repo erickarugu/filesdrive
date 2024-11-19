@@ -7,7 +7,7 @@ import { getApp } from "@/queries/app";
 export default async function AppDashboard({
   params,
 }: {
-  params: { appId: string };
+  params: Promise<{ appId: string }>;
 }) {
   const { appId } = await params;
 
