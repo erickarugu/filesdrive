@@ -22,6 +22,7 @@ export type CreateUploadOptions = {
     size: number;
     type: string;
     lastModified: Date;
+    appId: string;
   };
   select?: Prisma.UploadSelect;
 };
@@ -34,6 +35,7 @@ export type UpdateUploadOptions = {
 
 export type DeleteUploadOptions = {
   where: Prisma.UploadWhereUniqueInput;
+  select?: Prisma.UploadSelect;
 };
 
 export type Upload = Prisma.UploadGetPayload<{
@@ -71,7 +73,7 @@ async function getUploads(options: GetUploadsOptions): Promise<Upload[]> {
 async function createUpload(options: CreateUploadOptions) {
   const { input, select } = options;
 
-  const { userId, ...restInput } = input;
+  const { userId, appId, ...restInput } = input;
 
   try {
     const upload = await prisma.upload.create({
@@ -80,6 +82,11 @@ async function createUpload(options: CreateUploadOptions) {
         user: {
           connect: {
             id: userId,
+          },
+        },
+        app: {
+          connect: {
+            id: appId,
           },
         },
       },
@@ -108,12 +115,11 @@ async function updateUpload(options: UpdateUploadOptions) {
   }
 }
 
-async function deleteUpload(options: DeleteUploadOptions) {
-  const { where } = options;
-
+async function deleteUpload(
+  options: DeleteUploadOptions
+): Promise<Upload | null> {
   try {
-    const upload = await prisma.upload.delete({ where });
-    return upload;
+    return await prisma.upload.delete(options);
   } catch (error: any) {
     throw new Error(error);
   }

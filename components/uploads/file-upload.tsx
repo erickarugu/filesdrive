@@ -5,24 +5,23 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "../ui/use-toast";
 import { ToastAction } from "@radix-ui/react-toast";
 import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import axios, { AxiosProgressEvent } from "axios";
-import { useTheme } from "next-themes";
+import axios from "axios";
 import { CloudUpload } from "lucide-react";
 import {
   createNewUpload,
   getCurrentUser,
   getGCPSignedUrl,
 } from "@/app/dashboard/actions";
-import { formatBytes, getTimeDifference } from "@/lib/utils";
+import { getTimeDifference } from "@/lib/utils";
+import { Button } from "../ui/button";
+import { FloatingUploadButton } from "./floating-upload-button";
+import { UploadOverlay } from "./upload-overlay";
 
-export default function FileUpload() {
+export default function FileUpload({ appId }: { appId: string }) {
   const [file, setFile] = useState<File>();
   const [progress, setProgress] = useState(0);
   const [startTime, setStartTime] = useState<number>();
-  const [progressEvent, setProgressEvent] = useState<AxiosProgressEvent>();
   const queryClient = useQueryClient();
-  const { theme } = useTheme();
 
   const uploadFile = async ({
     signedUrl,
@@ -42,7 +41,6 @@ export default function FileUpload() {
         const percentComplete =
           (progressEvent.loaded / progressEvent?.total) * 100;
         setProgress(percentComplete);
-        setProgressEvent(progressEvent);
       },
     });
   };
@@ -61,6 +59,7 @@ export default function FileUpload() {
             type: file.type,
             lastModified: new Date(file.lastModified),
             userId: currentUser.id,
+            appId,
           },
         });
       }
@@ -110,7 +109,42 @@ export default function FileUpload() {
 
     setStartTime(Date.now());
 
-    const signedUrlResponse = await getGCPSignedUrl();
+    const signedUrlResponse = await getGCPSignedUrl(tempFile.name);
+
+    if (!signedUrlResponse) {
+      toast({
+        variant: "destructive",
+        title: "Something went wrong!",
+        description: "An error occurred while getting GCP signed url",
+      });
+      return;
+    }
+
+    uploadFileMutation.mutate({
+      signedUrl: signedUrlResponse.url,
+      file: tempFile,
+      fileKey: signedUrlResponse.key,
+    });
+  };
+
+  const handleFileDrop = async (files: FileList) => {
+    if (!files.length) return;
+
+    const tempFile = files[0];
+    await setFile(tempFile);
+
+    if (!tempFile) {
+      toast({
+        variant: "destructive",
+        title: "Please select a file first",
+        description: "Please select a file first",
+      });
+      return;
+    }
+
+    setStartTime(Date.now());
+
+    const signedUrlResponse = await getGCPSignedUrl(tempFile.name);
 
     if (!signedUrlResponse) {
       toast({
@@ -129,67 +163,53 @@ export default function FileUpload() {
   };
 
   return (
-    <div className="flex-col flex-1 self-stretch">
-      <div className="flex justify-end items-center gap-2 my-7">
-        <div className="flex items-center gap-1 focus:outline-none">
-          <Input
-            id="picture"
-            type="file"
-            className="hidden"
-            onChange={handleUpload}
-            disabled={uploadFileMutation.isPending}
-          />
-          <Label
-            htmlFor="picture"
-            className="cursor-pointer flex items-center gap-2 bg-primary text-secondary p-3 py-2 rounded shadow-sm"
-            style={{ position: "relative" }}
-          >
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: `${progress}%`,
-                height: "100%",
-                backgroundColor: theme === "dark" ? "#4a5568" : "#a0aec0",
-                transition: "width 0.2s",
-                zIndex: 0,
-                opacity: 0.4,
-              }}
-            ></div>
-
-            {!uploadFileMutation.isPending && !startTime && (
-              <>
-                <CloudUpload />
-                <span>Upload</span>
-              </>
+    <>
+      <div className="flex justify-end items-center gap-2">
+        <Input
+          id="fileUpload"
+          type="file"
+          className="hidden"
+          onChange={handleUpload}
+          disabled={uploadFileMutation.isPending}
+        />
+        <Button
+          asChild
+          variant="default"
+          className="min-w-[140px] relative overflow-hidden"
+          disabled={uploadFileMutation.isPending}
+        >
+          <label htmlFor="fileUpload" className="cursor-pointer">
+            <div className="relative z-10 flex items-center gap-2">
+              <CloudUpload className="h-4 w-4" />
+              <span>
+                {uploadFileMutation.isPending
+                  ? `${progress.toFixed(0)}%`
+                  : "Upload File"}
+              </span>
+            </div>
+            {uploadFileMutation.isPending && (
+              <div
+                className="absolute inset-0 bg-primary/30"
+                style={{
+                  width: `${progress}%`,
+                  transition: "width 0.2s ease-in-out",
+                }}
+              />
             )}
-
-            {uploadFileMutation.isPending && startTime && (
-              <>
-                <span className="text-sm text-muted">
-                  Uploading... ({progress.toFixed(2) + "%"})
-                </span>
-              </>
-            )}
-          </Label>
-        </div>
+          </label>
+        </Button>
       </div>
-      {startTime && (
-        <div className="flex flex-row gap-5 justify-end text-muted-foreground text-sm">
-          <p>File: {file?.name}</p>
-          <p>
-            Time taken: {getTimeDifference(new Date(startTime), new Date())}
-          </p>
-          {progressEvent?.loaded && progressEvent?.total && (
-            <p>
-              File size:
-              {formatBytes(progressEvent?.loaded)} /{" "}
-              {formatBytes(progressEvent?.total)}
-            </p>
-          )}
-        </div>
-      )}
-    </div>
+
+      <FloatingUploadButton
+        progress={progress}
+        isUploading={uploadFileMutation.isPending}
+        onUpload={handleUpload}
+      />
+
+      <UploadOverlay
+        onUpload={handleFileDrop}
+        isUploading={uploadFileMutation.isPending}
+      />
+    </>
   );
 }

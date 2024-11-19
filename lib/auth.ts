@@ -1,6 +1,7 @@
 import { User } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "./prisma";
+import { redirect } from "next/dist/server/api-utils";
 
 export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -33,6 +34,14 @@ export const authOptions = {
     },
     async signOut() {
       return true;
+    },
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
+      console.log({ url, baseUrl });
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
     },
   },
 };
