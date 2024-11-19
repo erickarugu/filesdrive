@@ -21,11 +21,12 @@ export class GCPUpload {
     this.bucketName = process.env.GCP_BUCKET_NAME!;
   }
 
-  async getSignedUrl(user: Partial<User>) {
+  async getSignedUrl(user: Partial<User>, filename: string) {
     if (!user.email) throw new Error();
 
     const folderName = `${user?.email.toLowerCase()}`;
-    const destFileName = randomUUID();
+    const fileExtension = filename.split(".").pop();
+    const destFileName = `${randomUUID()}.${fileExtension}`;
 
     const bucket = this.client.bucket(this.bucketName);
 
@@ -38,5 +39,25 @@ export class GCPUpload {
     });
 
     return { url, key: destFileName };
+  }
+
+  async downloadFile(user: Partial<User>, key: string) {
+    if (!user.email) throw new Error();
+
+    const fileKey = `${user?.email.toLowerCase()}/${key}`;
+
+    const bucket = this.client.bucket(this.bucketName);
+
+    await bucket.file(fileKey).download();
+  }
+
+  async deleteFile(user: Partial<User>, key: string) {
+    if (!user.email) throw new Error();
+
+    const fileKey = `${user?.email.toLowerCase()}/${key}`;
+
+    const bucket = this.client.bucket(this.bucketName);
+
+    return await bucket.file(fileKey).delete();
   }
 }

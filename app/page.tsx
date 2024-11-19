@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { Icons } from "@/components/icons";
 import { signIn, useSession } from "next-auth/react";
-import { useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 
 export default function Home() {
@@ -87,7 +86,8 @@ export default function Home() {
               <span className="text-sm font-medium">Secure Cloud Storage</span>
             </div>
 
-            <h1 className="text-6xl font-extrabold leading-tight relative">
+            {/* reduce size in smaller devices  */}
+            <h1 className="text-6xl font-extrabold leading-tight relative md:text-6xl sm:text-4xl">
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-600 animate-gradient">
                 Store, Share, &
               </span>
@@ -407,7 +407,7 @@ export default function Home() {
                   {[
                     {
                       icon: Cloud,
-                      title: "50GB Cloud Storage",
+                      title: "50 GB Cloud Storage",
                       desc: "Secure space for your files",
                     },
                     {
@@ -493,7 +493,7 @@ export default function Home() {
                   {[
                     {
                       icon: Cloud,
-                      title: "100GB Enhanced Storage",
+                      title: "100 GB Enhanced Storage",
                       desc: "Expanded secure cloud space",
                     },
                     {

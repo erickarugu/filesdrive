@@ -1,8 +1,6 @@
-import { MainNavClient } from "@/components/mainNav";
-
 export const metadata = {
   title: `Dashboard`,
-  description: "Dashboard for the app",
+  description: "FilesDrive Dashboard",
 };
 
 export default function DashboardLayout({

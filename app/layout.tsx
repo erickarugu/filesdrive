@@ -22,7 +22,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          defer
+          data-website-id="673c33d183daa66fe3b794d5"
+          data-domain="filesdrive.xyz"
+          src="https://datafa.st/js/script.js"
+        ></script>
+      </head>
       <body
         suppressHydrationWarning
         className={cn(

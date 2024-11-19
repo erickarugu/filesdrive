@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { Cpu, LogOut } from "lucide-react";
+import { Cpu, LogOut, Database } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { GoogleSignInButton } from "./google-signin-button";
 import { MainNavBreadcrumb } from "./breadcrumb";

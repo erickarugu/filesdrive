@@ -21,6 +21,8 @@ model User {
   avatar  String?
   uploads Upload[]
   teams   Team[]
+  apps    App[]
+  folders Folder[]
 
   @@index([email])
   @@map("users")
@@ -38,13 +40,54 @@ model Upload {
   type         String
   lastModified DateTime @map("last_modified")
   userId       String   @map("user_id") @db.Uuid()
+  appId        String?  @map("app_id") @db.Uuid()
 
   user User @relation(fields: [userId], references: [id])
+  app  App? @relation(fields: [appId], references: [id])
 
   @@index([name])
   @@index([key])
   @@index([userId])
   @@map("uploads")
+}
+
+model App {
+  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid()
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  name   String
+  userId String @map("user_id") @db.Uuid()
+
+  user    User     @relation(fields: [userId], references: [id])
+  uploads Upload[]
+  folders Folder[]
+
+  @@unique([userId, name])
+  @@index([name])
+  @@index([userId])
+  @@map("apps")
+}
+
+model Folder {
+  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid()
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  name   String
+  appId  String @map("app_id") @db.Uuid()
+  userId String @map("user_id") @db.Uuid()
+
+  app  App  @relation(fields: [appId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([appId, name])
+  @@index([name])
+  @@index([appId])
+  @@index([userId])
+  @@map("folders")
 }
 
 model Team {

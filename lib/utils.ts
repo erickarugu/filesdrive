@@ -7,15 +7,15 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatBytes(bytes: number) {
   if (bytes > 1024 * 1024 * 1024 * 1024) {
-    return (bytes / (1024 * 1024 * 1024 * 1024)).toFixed(2) + "TB";
+    return (bytes / (1024 * 1024 * 1024 * 1024)).toFixed(2) + " TB";
   } else if (bytes > 1024 * 1024 * 1024) {
-    return (bytes / (1024 * 1024 * 1024)).toFixed(2) + "GB";
+    return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GB";
   } else if (bytes > 1024 * 1024) {
-    return (bytes / (1024 * 1024)).toFixed(2) + "MB";
+    return (bytes / (1024 * 1024)).toFixed(2) + " MB";
   } else if (bytes > 1024) {
-    return (bytes / 1024).toFixed(2) + "KB";
+    return (bytes / 1024).toFixed(2) + " KB";
   }
-  return bytes + "B";
+  return bytes + " B";
 }
 
 export function formatDate(date: Date) {
@@ -82,4 +82,13 @@ export function getTimeDifference(startDate: Date, endDate: Date) {
     return `${minutes}m ${seconds}s`;
   }
   return `${seconds}s`;
+}
+
+/* Check if string is valid UUID */
+export function checkIfValidUUID(str: string) {
+  // Regular expression to check if a string is a valid UUID
+  const regexExp =
+    /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
+
+  return regexExp.test(str);
 }
