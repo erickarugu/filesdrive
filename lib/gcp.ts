@@ -10,7 +10,6 @@ export class GCPUpload {
     const base64EncodedServiceAccount =
       process.env.GCP_BASE64_ENCODED_CREDENTIALS!;
 
-    console.log("base64EncodedServiceAccount", { base64EncodedServiceAccount });
 
     const decodedServiceAccount = Buffer.from(
       base64EncodedServiceAccount,
