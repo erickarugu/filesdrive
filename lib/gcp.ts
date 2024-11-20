@@ -7,17 +7,14 @@ export class GCPUpload {
   private readonly bucketName: string;
 
   constructor() {
-    if (process.env.NODE_ENV === "production") {
-      this.client = new Storage();
-    } else {
-      this.client = new Storage({
-        projectId: process.env.GCP_PROJECT_ID,
-        credentials: {
-          client_email: process.env.GCP_CLIENT_EMAIL,
-          private_key: process.env.GCP_PRIVATE_KEY,
-        },
-      });
-    }
+    this.client = new Storage({
+      projectId: process.env.GCP_PROJECT_ID,
+      credentials: {
+        client_email: process.env.GCP_CLIENT_EMAIL,
+        private_key: process.env.GCP_PRIVATE_KEY,
+      },
+    });
+
     this.bucketName = process.env.GCP_BUCKET_NAME!;
   }
 
