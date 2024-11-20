@@ -75,9 +75,7 @@ async function deleteServerUpload(
 async function getGCPSignedUrl(filename: string) {
   try {
     const gcpUpload = new GCPUpload();
-    console.log("getting signed url", { gcpUpload });
     const user = await getCurrentUser();
-    console.log("user", { user });
     if (!user) return null;
 
     return await gcpUpload.getSignedUrl(user, filename);

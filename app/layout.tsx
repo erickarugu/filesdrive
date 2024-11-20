@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/toaster";
 import { MainNavClient } from "@/components/mainNav";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -44,6 +45,7 @@ export default function RootLayout({
         </Providers>
         <Toaster />
       </body>
+      <GoogleAnalytics gaId="G-2W0T0F0VHE" />
     </html>
   );
 }
