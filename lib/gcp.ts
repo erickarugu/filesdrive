@@ -1,5 +1,5 @@
 import { User } from "@/queries";
-import { Storage } from "@google-cloud/storage";
+import { ServiceAccount, Storage } from "@google-cloud/storage";
 import { randomUUID } from "crypto";
 
 export class GCPUpload {
@@ -7,12 +7,20 @@ export class GCPUpload {
   private readonly bucketName: string;
 
   constructor() {
+    const base64EncodedServiceAccount =
+      process.env.GCP_BASE64_ENCODED_CREDENTIALS!;
+
+    console.log("base64EncodedServiceAccount", { base64EncodedServiceAccount });
+
+    const decodedServiceAccount = Buffer.from(
+      base64EncodedServiceAccount,
+      "base64"
+    ).toString("utf-8");
+    const credentials = JSON.parse(decodedServiceAccount);
+
     this.client = new Storage({
       projectId: process.env.GCP_PROJECT_ID,
-      credentials: {
-        client_email: process.env.GCP_CLIENT_EMAIL,
-        private_key: process.env.GCP_PRIVATE_KEY,
-      },
+      credentials,
     });
 
     this.bucketName = process.env.GCP_BUCKET_NAME!;
